@@ -3,7 +3,7 @@
 namespace Niji\AkeneoLabelizedExportBundle\Writer\File\Xlsx;
 
 use Akeneo\Component\Buffer\BufferFactory;
-use LabelizedExportBundle\Writer\File\FlatItemBufferFlusher;
+use Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher;
 use Pim\Component\Catalog\Repository\AttributeRepositoryInterface;
 use Pim\Component\Connector\ArrayConverter\ArrayConverterInterface;
 use Pim\Component\Connector\Writer\File\FileExporterPathGeneratorInterface;
@@ -14,7 +14,7 @@ class ProductWriter extends BaseProductWriter
 {
     private const DEFAULT_FILE_PATH = 'filePath';
 
-    /** @var \LabelizedExportBundle\Writer\File\FlatItemBufferFlusher */
+    /** @var \Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher */
     protected $flusher;
 
     /**
