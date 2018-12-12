@@ -7,7 +7,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
 
-class AkeneoLabelizedExportBundle extends Extension
+class AkeneoLabelizedExportExtension extends Extension
 {
     /**
      * {@inheritdoc}
