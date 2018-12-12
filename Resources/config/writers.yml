@@ -1,0 +1,21 @@
+parameters:
+  labelized_export.writer.file.flat_item_buffer_flusher.class: Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher
+  labelized_export.writer.file.xlsx_product.class: Niji\AkeneoLabelizedExportBundle\Writer\File\Xlsx\ProductWriter
+
+services:
+
+  labelized_export.writer.file.product.flat_item_buffer_flusher:
+    class: '%labelized_export.writer.file.flat_item_buffer_flusher.class%'
+    arguments:
+      - '@pim_catalog.repository.attribute'
+      - '@pim_connector.writer.file.product.column_sorter'
+
+  labelized_export.writer.file.xlsx_product:
+    class: '%labelized_export.writer.file.xlsx_product.class%'
+    arguments:
+      - '@pim_connector.array_converter.standard_to_flat.product_localized'
+      - '@pim_connector.factory.flat_item_buffer'
+      - '@labelized_export.writer.file.product.flat_item_buffer_flusher'
+      - '@pim_catalog.repository.attribute'
+      - '@pim_connector.writer.file.media_exporter_path_generator'
+      - ['pim_catalog_file', 'pim_catalog_image']

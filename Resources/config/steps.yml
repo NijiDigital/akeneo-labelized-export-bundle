@@ -1,0 +1,11 @@
+services:
+  labelized_export.step.xlsx_product.export:
+    class: '%pim_connector.step.item_step.class%'
+    arguments:
+      - 'export'
+      - '@event_dispatcher'
+      - '@akeneo_batch.job_repository'
+      - '@pim_connector.reader.database.product'
+      - '@labelized_export.processor.normalization.product'
+      - '@labelized_export.writer.file.xlsx_product'
+      - '%pim_job_product_batch_size%'

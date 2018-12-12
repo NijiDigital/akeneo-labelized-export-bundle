@@ -1,0 +1,45 @@
+{
+  "name": "niji/akeneo-labelized-export-bundle",
+  "type": "symfony-bundle",
+  "description": "Akeneo bundle that add an XLSX export profile which use labels instead of codes for attribute names and value.",
+  "keywords": [
+    "Akeneo",
+    "Export",
+    "Labelized",
+    "Akeneo"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Bertrand Presles",
+      "email": "bertrand.presles@niji.fr"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/akeneo/pim-community-dev.git",
+      "branch": "master"
+    }
+  ],
+  "require": {
+    "php": "^7.0",
+    "akeneo/pim-community-dev": "^2.3",
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Niji\\AkeneoLabelizedExportBundle\\": ""
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Niji\\AkeneoLabelizedExportBundle\\Tests\\": "/Tests/"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+parameters:
+  labelized_export.job_name.xlsx_product_export: 'labelized_xlsx_product_export'
+  labelized_export.connector_name: 'Labelized Export Connector'
+
+services:
+  labelized_export.job.xlsx_product_export:
+    class: '%pim_connector.job.simple_job.class%'
+    arguments:
+    - '%labelized_export.job_name.xlsx_product_export%'
+    - '@event_dispatcher'
+    - '@akeneo_batch.job_repository'
+    -
+        - '@labelized_export.step.xlsx_product.export'
+    tags:
+    - { name: akeneo_batch.job, connector: '%labelized_export.connector_name%', type: '%pim_connector.job.export_type%' }

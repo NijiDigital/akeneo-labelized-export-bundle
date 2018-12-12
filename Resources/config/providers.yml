@@ -1,0 +1,7 @@
+services:
+  labelized_export.provider.form.job_instance:
+    class: '%pim_enrich.provider.form.job_instance.class%'
+    arguments:
+      - labelized_xlsx_product_export: pim-job-instance-xlsx-product-export
+    tags:
+      - { name: pim_enrich.provider.form, priority: 100 }

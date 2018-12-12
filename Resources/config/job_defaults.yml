@@ -1,0 +1,11 @@
+services:
+  labelized_export.job.job_parameters.default_values_provider.product_xlsx_export:
+    class: '%pim_connector.job.job_parameters.default_values_provider.product_xlsx_export.class%'
+    arguments:
+    - '@pim_connector.job.job_parameters.default_values_provider.simple_xlsx_export'
+    - '@pim_catalog.repository.channel'
+    - '@pim_catalog.repository.locale'
+    -
+        - '%labelized_export.job_name.xlsx_product_export%'
+    tags:
+      - { name: akeneo_batch.job.job_parameters.default_values_provider }
