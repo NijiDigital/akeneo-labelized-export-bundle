@@ -9,5 +9,12 @@ This bundle adds an XLSX export profile that export attributes labels instead of
 In your `app/AppKernel.php` add a line to enable the bundle:
 
 ```php
-new Niji\AkeneoLabelizedExportBundle\AkeneoLabelizedExportBundle()
+public function registerProjectBundles() {
+   return [
+       // your app bundles should be registered here,
+       .../...
+       new Niji\AkeneoLabelizedExportBundle\AkeneoLabelizedExportBundle(),
+       .../...
+   ];
+}
 ```

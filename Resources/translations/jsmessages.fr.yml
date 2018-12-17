@@ -1,0 +1,3 @@
+batch_jobs:
+    labelized_xlsx_product_export:
+        label: 'Export produits avec libellés (XLSX)'
