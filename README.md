@@ -18,3 +18,8 @@ public function registerProjectBundles() {
    ];
 }
 ```
+
+## Important note
+
+This export profile assume that there is only one locale selected on the profile configuration.
+In case there are multiple locales selected, it'll take in account only the first one for the labels and simple/multi select attributes values.
