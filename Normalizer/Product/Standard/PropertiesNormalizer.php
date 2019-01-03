@@ -82,16 +82,16 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
 
             //skip value if no data
             $valueData = $value->getData();
+            $attributeType = $value->getAttribute()->getType();
 
             //translate select attribute
             if (!empty($valueData)
-              && (AttributeTypes::OPTION_MULTI_SELECT == $value->getAttribute()->getType()
-                || AttributeTypes::OPTION_SIMPLE_SELECT == $value->getAttribute()
-                  ->getType())) {
+              && (AttributeTypes::OPTION_MULTI_SELECT == $attributeType
+                || AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType)) {
 
                 //get AttributeOption object from value
                 $attributeOptions = $valueData;
-                if (AttributeTypes::OPTION_SIMPLE_SELECT == $value->getAttribute()->getType()) {
+                if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
                     $attributeOptions = [$valueData];
                 }
 
@@ -104,10 +104,14 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
 
                     $locale = $context['values_locale'];
                     if (!empty($attributeOptionNormalized['labels'][$locale])) {
+                        $dataLabelized = (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType ?
+                          $attributeOptionNormalized['labels'][$locale] :
+                          [$attributeOptionNormalized['labels'][$locale]]);
+
                         $data[$value->getAttribute()->getCode()][] = [
                           'locale' => null,
                           'scope' => null,
-                          'data' => $attributeOptionNormalized['labels'][$locale],
+                          'data' => $dataLabelized,
                         ];
                     }
 
