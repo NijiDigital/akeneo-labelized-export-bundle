@@ -88,11 +88,14 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
             if (!empty($valueData)
               && (AttributeTypes::OPTION_MULTI_SELECT == $attributeType
                 || AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType)) {
+                $data[$value->getAttribute()->getCode()] = [];
 
                 //get AttributeOption object from value
                 $attributeOptions = $valueData;
+                $attributeOptionData = [];
                 if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
                     $attributeOptions = [$valueData];
+                    $attributeOptionData = '';
                 }
 
                 foreach ($attributeOptions as $attributeOption) {
@@ -104,21 +107,28 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
 
                     $locale = $context['values_locale'];
                     if (!empty($attributeOptionNormalized['labels'][$locale])) {
-                        $dataLabelized = (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType ?
-                          $attributeOptionNormalized['labels'][$locale] :
-                          [$attributeOptionNormalized['labels'][$locale]]);
-
-                        $data[$value->getAttribute()->getCode()][] = [
-                          'locale' => null,
-                          'scope' => null,
-                          'data' => $dataLabelized,
-                        ];
+                        if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
+                            $attributeOptionData = $attributeOptionNormalized['labels'][$locale];
+                        }
+                        else {
+                            $attributeOptionData[] = $attributeOptionNormalized['labels'][$locale];
+                        }
                     }
-
-                    if (count($data[$value->getAttribute()->getCode()]) > 1) {
-                        unset($data[$value->getAttribute()->getCode()][0]);
+                    else {
+                        if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
+                            $attributeOptionData = $attributeOption->getCode();
+                        }
+                        else {
+                            $attributeOptionData[] = $attributeOption->getCode();
+                        }
                     }
                 }
+
+                $data[$value->getAttribute()->getCode()][] = [
+                  'locale' => null,
+                  'scope' => null,
+                  'data' => $attributeOptionData,
+                ];
             }
         }
 
