@@ -2,8 +2,8 @@
 
 namespace Niji\AkeneoLabelizedExportBundle\Processor;
 
-use Akeneo\Component\Batch\Job\JobInterface;
-use Pim\Component\Connector\Processor\Normalization\ProductProcessor as BaseProductProcessor;
+use Akeneo\Tool\Component\Batch\Job\JobInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Connector\Processor\Normalization\ProductProcessor as BaseProductProcessor;
 
 class ProductProcessor extends BaseProductProcessor
 {

@@ -2,12 +2,12 @@
 
 namespace Niji\AkeneoLabelizedExportBundle\Writer\File\Xlsx;
 
-use Akeneo\Component\Buffer\BufferFactory;
+use Akeneo\Tool\Component\Buffer\BufferFactory;
 use Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher;
-use Pim\Component\Catalog\Repository\AttributeRepositoryInterface;
-use Pim\Component\Connector\ArrayConverter\ArrayConverterInterface;
-use Pim\Component\Connector\Writer\File\FileExporterPathGeneratorInterface;
-use Pim\Component\Connector\Writer\File\Xlsx\ProductWriter as BaseProductWriter;
+use Akeneo\Pim\Structure\Component\Repository\AttributeRepositoryInterface;
+use Akeneo\Tool\Component\Connector\ArrayConverter\ArrayConverterInterface;
+use Akeneo\Tool\Component\Connector\Writer\File\FileExporterPathGeneratorInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Connector\Writer\File\Xlsx\ProductWriter as BaseProductWriter;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ProductWriter extends BaseProductWriter

@@ -3,12 +3,12 @@
 namespace Niji\AkeneoLabelizedExportBundle\Normalizer\Product\Standard;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Pim\Bundle\CatalogBundle\Entity\AttributeOption;
-use Pim\Bundle\CatalogBundle\Filter\CollectionFilterInterface;
-use Pim\Component\Catalog\AttributeTypes;
-use Pim\Component\Catalog\Model\ValueCollectionInterface;
-use Pim\Component\Catalog\Normalizer\Standard\AttributeOptionNormalizer;
-use Pim\Component\Catalog\Normalizer\Standard\Product\PropertiesNormalizer as BasePropertiesNormalizer;
+use Akeneo\Pim\Structure\Component\Model\AttributeOption;
+use Akeneo\Pim\Enrichment\Bundle\Filter\CollectionFilterInterface;
+use Akeneo\Pim\Structure\Component\AttributeTypes;
+use Akeneo\Pim\Enrichment\Component\Product\Model\WriteWriteValueCollectionInterface;
+use Akeneo\Pim\Structure\Component\Normalizer\Standard\AttributeOptionNormalizer;
+use Akeneo\Pim\Enrichment\Component\Product\Normalizer\Standard\Product\PropertiesNormalizer as BasePropertiesNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
@@ -19,7 +19,7 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
     /** @var CollectionFilterInterface */
     private $filter;
 
-    /** @var \Pim\Component\Catalog\Normalizer\Standard\AttributeOptionNormalizer */
+    /** @var \Akeneo\Pim\Structure\Component\Normalizer\Standard\AttributeOptionNormalizer */
     private $attributeOptionNormalizer;
 
     /**
@@ -63,20 +63,20 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
     /**
      * Normalize the values of the product
      *
-     * @param ValueCollectionInterface $values
+     * @param WriteValueCollectionInterface $values
      * @param string                   $format
      * @param array                    $context
      *
      * @return array
      */
-    private function normalizeValues(ValueCollectionInterface $values, $format, array $context = [])
+    private function normalizeValues(WriteValueCollectionInterface $values, $format, array $context = [])
     {
         foreach ($context['filter_types'] as $filterType) {
             $values = $this->filter->filterCollection($values, $filterType, $context);
         }
 
         $data = [];
-        /** @var \Pim\Component\Catalog\Model\ValueInterface $value */
+        /** @var \Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface $value */
         foreach ($values as $value) {
             $data[$value->getAttribute()->getCode()][] = $this->serializer->normalize($value, $format, $context);
 

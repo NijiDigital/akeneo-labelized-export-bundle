@@ -2,19 +2,21 @@
 
 namespace Niji\AkeneoLabelizedExportBundle\Writer\File;
 
-use Akeneo\Component\Batch\Model\StepExecution;
-use Akeneo\Component\Batch\Step\StepExecutionAwareInterface;
+use Akeneo\Tool\Component\Batch\Model\StepExecution;
+use Akeneo\Tool\Component\Batch\Step\StepExecutionAwareInterface;
+use Box\Spout\Common\Exception\IOException;
 use Box\Spout\Common\Exception\UnsupportedTypeException;
+use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\WriterInterface;
-use Pim\Component\Catalog\Repository\AttributeRepositoryInterface;
-use Pim\Component\Connector\Writer\File\ColumnSorterInterface;
-use Pim\Component\Connector\Writer\File\FlatItemBuffer;
-use Pim\Component\Connector\Writer\File\FlatItemBufferFlusher as BaseFlatItemBufferFlusher;
+use Akeneo\Pim\Structure\Component\Repository\AttributeRepositoryInterface;
+use Akeneo\Tool\Component\Connector\Writer\File\ColumnSorterInterface;
+use Akeneo\Tool\Component\Connector\Writer\File\FlatItemBuffer;
+use Akeneo\Tool\Component\Connector\Writer\File\FlatItemBufferFlusher as BaseFlatItemBufferFlusher;
 
 /**
  * Flushes the flat item buffer into one or multiple output files.
- * @see Pim\Component\Connector\Writer\File\FlatItemBuffer
+ * @see Akeneo\Tool\Component\Connector\Writer\File\FlatItemBuffer
  *
  * Several output files are created if the buffer contains more items that maximum lines authorized per output file.
  *
@@ -40,10 +42,11 @@ class FlatItemBufferFlusher extends BaseFlatItemBufferFlusher
 
     /**
      * @param FlatItemBuffer $buffer
-     * @param array          $writerOptions
-     * @param string         $filePath
+     * @param array $writerOptions
+     * @param string $filePath
      *
      * @return array
+     * @throws UnsupportedTypeException
      */
     protected function writeIntoSingleFile(FlatItemBuffer $buffer, array $writerOptions, $filePath)
     {
@@ -78,11 +81,12 @@ class FlatItemBufferFlusher extends BaseFlatItemBufferFlusher
 
     /**
      * @param FlatItemBuffer $buffer
-     * @param array          $writerOptions
-     * @param int            $maxLinesPerFile
-     * @param string         $basePathname
+     * @param array $writerOptions
+     * @param int $maxLinesPerFile
+     * @param string $basePathname
      *
      * @return array
+     * @throws UnsupportedTypeException
      */
     protected function writeIntoSeveralFiles(
       FlatItemBuffer $buffer,
@@ -154,7 +158,7 @@ class FlatItemBufferFlusher extends BaseFlatItemBufferFlusher
                 $locale = $localizedAttributeCodes[2];
             }
 
-            /** @var \Pim\Component\Catalog\Model\AttributeInterface $attribute */
+            /** @var \Akeneo\Pim\Structure\Component\Model\AttributeInterface $attribute */
             $attribute = $this->attributeRepository->findOneByIdentifier($attributeCode);
 
             if (isset($attribute) && !empty($attribute->getTranslation($locale)->getLabel())) {

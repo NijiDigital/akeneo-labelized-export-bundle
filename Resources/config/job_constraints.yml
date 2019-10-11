@@ -1,8 +1,8 @@
 services:
   labelized_export.job.job_parameters.constraint_collection_provider.product_xlsx_export:
-    class: '%pim_connector.job.job_parameters.constraint_collection_provider.product_xlsx_export.class%'
+    class: 'Akeneo\Pim\Enrichment\Component\Product\Connector\Job\JobParameters\ConstraintCollectionProvider\ProductXlsxExport'
     arguments:
-      - '@pim_connector.job.job_parameters.constraint_collection_provider.simple_xlsx_export'
+      - 'Akeneo\Tool\Component\Connector\Job\JobParameters\ConstraintCollectionProvider\SimpleXlsxExport'
       -
           - 'labelized_xlsx_product_export'
     tags:
