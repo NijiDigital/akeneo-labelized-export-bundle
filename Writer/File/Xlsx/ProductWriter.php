@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ProductWriter extends BaseProductWriter
 {
-    private const DEFAULT_FILE_PATH = 'filePath';
+    protected const DEFAULT_FILE_PATH = 'filePath';
 
     /** @var \Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher */
     protected $flusher;
