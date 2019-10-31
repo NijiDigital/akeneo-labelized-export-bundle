@@ -1,6 +1,6 @@
 services:
   labelized_export.step.xlsx_product.export:
-    class: '%pim_connector.step.item_step.class%'
+    class: Akeneo\Tool\Component\Batch\Step\ItemStep
     arguments:
       - 'export'
       - '@event_dispatcher'

@@ -4,9 +4,7 @@ namespace Niji\AkeneoLabelizedExportBundle\Writer\File;
 
 use Akeneo\Tool\Component\Batch\Model\StepExecution;
 use Akeneo\Tool\Component\Batch\Step\StepExecutionAwareInterface;
-use Box\Spout\Common\Exception\IOException;
 use Box\Spout\Common\Exception\UnsupportedTypeException;
-use Box\Spout\Writer\Exception\WriterNotOpenedException;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\WriterInterface;
 use Akeneo\Pim\Structure\Component\Repository\AttributeRepositoryInterface;
@@ -42,11 +40,10 @@ class FlatItemBufferFlusher extends BaseFlatItemBufferFlusher
 
     /**
      * @param FlatItemBuffer $buffer
-     * @param array $writerOptions
-     * @param string $filePath
+     * @param array          $writerOptions
+     * @param string         $filePath
      *
      * @return array
-     * @throws UnsupportedTypeException
      */
     protected function writeIntoSingleFile(FlatItemBuffer $buffer, array $writerOptions, $filePath)
     {
@@ -81,12 +78,11 @@ class FlatItemBufferFlusher extends BaseFlatItemBufferFlusher
 
     /**
      * @param FlatItemBuffer $buffer
-     * @param array $writerOptions
-     * @param int $maxLinesPerFile
-     * @param string $basePathname
+     * @param array          $writerOptions
+     * @param int            $maxLinesPerFile
+     * @param string         $basePathname
      *
      * @return array
-     * @throws UnsupportedTypeException
      */
     protected function writeIntoSeveralFiles(
       FlatItemBuffer $buffer,

@@ -2,33 +2,36 @@
 
 namespace Niji\AkeneoLabelizedExportBundle\Normalizer\Product\Standard;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
+use Akeneo\Pim\Permission\Bundle\Entity\Repository\AttributeRepository;
 use Akeneo\Pim\Structure\Component\Model\AttributeOption;
 use Akeneo\Pim\Enrichment\Bundle\Filter\CollectionFilterInterface;
 use Akeneo\Pim\Structure\Component\AttributeTypes;
-use Akeneo\Pim\Enrichment\Component\Product\Model\WriteWriteValueCollectionInterface;
-use Akeneo\Pim\Structure\Component\Normalizer\Standard\AttributeOptionNormalizer;
+use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
 use Akeneo\Pim\Enrichment\Component\Product\Normalizer\Standard\Product\PropertiesNormalizer as BasePropertiesNormalizer;
+use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerAwareTrait;
 
 class PropertiesNormalizer extends BasePropertiesNormalizer
 {
-    use SerializerAwareTrait;
+    use NormalizerAwareTrait;
 
     /** @var CollectionFilterInterface */
     private $filter;
 
-    /** @var \Akeneo\Pim\Structure\Component\Normalizer\Standard\AttributeOptionNormalizer */
-    private $attributeOptionNormalizer;
+    /** @var AttributeRepository */
+    private $attributeRepository;
 
     /**
      * @param CollectionFilterInterface $filter The collection filter
+     * @param NormalizerInterface $normalizer
+     * @param AttributeRepository $attributeRepository
      */
-    public function __construct(CollectionFilterInterface $filter, AttributeOptionNormalizer $attributeOptionNormalizer)
+    public function __construct(CollectionFilterInterface $filter, NormalizerInterface $normalizer, AttributeRepository $attributeRepository)
     {
         $this->filter = $filter;
-        $this->attributeOptionNormalizer = $attributeOptionNormalizer;
+        $this->normalizer = $normalizer;
+        $this->attributeRepository = $attributeRepository;
     }
 
     /**
@@ -36,8 +39,8 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
      */
     public function normalize($product, $format = null, array $context = [])
     {
-        if (!$this->serializer instanceof NormalizerInterface) {
-            throw new \LogicException('Serializer must be a normalizer');
+        if (!$this->normalizer instanceof NormalizerInterface) {
+            throw new \LogicException('The normalizer must implement NormalizerInterface');
         }
 
         $context = array_merge(['filter_types' => ['pim.transform.product_value.structured']], $context);
@@ -54,8 +57,8 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
         $data[self::FIELD_CATEGORIES] = $product->getCategoryCodes();
         $data[self::FIELD_ENABLED] = (bool) $product->isEnabled();
         $data[self::FIELD_VALUES] = $this->normalizeValues($product->getValues(), $format, $context);
-        $data[self::FIELD_CREATED] = $this->serializer->normalize($product->getCreated(), $format);
-        $data[self::FIELD_UPDATED] = $this->serializer->normalize($product->getUpdated(), $format);
+        $data[self::FIELD_CREATED] = $this->normalizer->normalize($product->getCreated(), $format);
+        $data[self::FIELD_UPDATED] = $this->normalizer->normalize($product->getUpdated(), $format);
 
         return $data;
     }
@@ -63,47 +66,44 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
     /**
      * Normalize the values of the product
      *
-     * @param WriteValueCollectionInterface $values
+     * @param WriteValueCollection $values
      * @param string                   $format
      * @param array                    $context
      *
      * @return array
      */
-    private function normalizeValues(WriteValueCollectionInterface $values, $format, array $context = [])
+    private function normalizeValues(WriteValueCollection $values, $format, array $context = [])
     {
         foreach ($context['filter_types'] as $filterType) {
             $values = $this->filter->filterCollection($values, $filterType, $context);
         }
 
         $data = [];
-        /** @var \Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface $value */
+        /** @var ValueInterface $value */
         foreach ($values as $value) {
-            $data[$value->getAttribute()->getCode()][] = $this->serializer->normalize($value, $format, $context);
+            $data[$value->getAttributeCode()][] = $this->normalizer->normalize($value, $format, $context);
 
             //skip value if no data
             $valueData = $value->getData();
-            $attributeType = $value->getAttribute()->getType();
+
+            $attributeType = $this->attributeRepository->findOneBy(["code" => $value->getAttributeCode()])->getType();
 
             //translate select attribute
             if (!empty($valueData)
               && (AttributeTypes::OPTION_MULTI_SELECT == $attributeType
                 || AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType)) {
-                $data[$value->getAttribute()->getCode()] = [];
+                $data[$value->getAttributeCode()] = [];
 
                 //get AttributeOption object from value
-                $attributeOptions = $valueData;
+                $attributeOptions = $value;
                 $attributeOptionData = [];
                 if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
-                    $attributeOptions = [$valueData];
+                    $attributeOptions = [$value];
                     $attributeOptionData = '';
                 }
 
                 foreach ($attributeOptions as $attributeOption) {
-                    $attributeOptionNormalized = $this->attributeOptionNormalizer->normalize(
-                      $attributeOption,
-                      'flat',
-                      $context
-                    );
+                    $attributeOptionNormalized = (array) $attributeOption;
 
                     $locale = $context['values_locale'];
                     if (!empty($attributeOptionNormalized['labels'][$locale])) {
@@ -116,15 +116,15 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
                     }
                     else {
                         if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
-                            $attributeOptionData = $attributeOption->getCode();
+                            $attributeOptionData = $attributeOption->getAttributeCode();
                         }
                         else {
-                            $attributeOptionData[] = $attributeOption->getCode();
+                            $attributeOptionData[] = $attributeOption->getAttributeCode();
                         }
                     }
                 }
 
-                $data[$value->getAttribute()->getCode()][] = [
+                $data[$value->getAttributeCode()][] = [
                   'locale' => null,
                   'scope' => null,
                   'data' => $attributeOptionData,
