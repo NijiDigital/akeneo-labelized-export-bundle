@@ -120,9 +120,6 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
                             'flat',
                             $context
                         );
-                        var_dump(get_class($value));
-                        var_dump($valueData);
-                        var_dump($attributeOptionNormalized);
                         $locale = $context['values_locale'];
                         if (!empty($attributeOptionNormalized['labels'][$locale])) {
                             if (AttributeTypes::OPTION_SIMPLE_SELECT == $attribute->getType()) {
