@@ -3,12 +3,16 @@
 namespace Niji\AkeneoLabelizedExportBundle\Normalizer\Product\Standard;
 
 use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Value\OptionValue;
+use Akeneo\Pim\Enrichment\Component\Product\Value\ScalarValue;
 use Akeneo\Pim\Permission\Bundle\Entity\Repository\AttributeRepository;
-use Akeneo\Pim\Structure\Component\Model\AttributeOption;
 use Akeneo\Pim\Enrichment\Bundle\Filter\CollectionFilterInterface;
 use Akeneo\Pim\Structure\Component\AttributeTypes;
 use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
 use Akeneo\Pim\Enrichment\Component\Product\Normalizer\Standard\Product\PropertiesNormalizer as BasePropertiesNormalizer;
+use Akeneo\Pim\Structure\Component\Model\AttributeInterface;
+use Akeneo\Pim\Structure\Component\Model\AttributeOptionInterface;
+use Akeneo\Pim\Structure\Component\Normalizer\Standard\AttributeOptionNormalizer;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -22,16 +26,21 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
     /** @var AttributeRepository */
     private $attributeRepository;
 
+    /** @var AttributeOptionNormalizer */
+    private $attributeOptionNormalizer;
+
     /**
      * @param CollectionFilterInterface $filter The collection filter
      * @param NormalizerInterface $normalizer
      * @param AttributeRepository $attributeRepository
+     * @param AttributeOptionNormalizer $attributeOptionNormalizer
      */
-    public function __construct(CollectionFilterInterface $filter, NormalizerInterface $normalizer, AttributeRepository $attributeRepository)
+    public function __construct(CollectionFilterInterface $filter, NormalizerInterface $normalizer, AttributeRepository $attributeRepository, AttributeOptionNormalizer $attributeOptionNormalizer)
     {
         $this->filter = $filter;
         $this->normalizer = $normalizer;
         $this->attributeRepository = $attributeRepository;
+        $this->attributeOptionNormalizer = $attributeOptionNormalizer;
     }
 
     /**
@@ -55,7 +64,7 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
         }
         $data[self::FIELD_GROUPS] = $product->getGroupCodes();
         $data[self::FIELD_CATEGORIES] = $product->getCategoryCodes();
-        $data[self::FIELD_ENABLED] = (bool) $product->isEnabled();
+        $data[self::FIELD_ENABLED] = (bool)$product->isEnabled();
         $data[self::FIELD_VALUES] = $this->normalizeValues($product->getValues(), $format, $context);
         $data[self::FIELD_CREATED] = $this->normalizer->normalize($product->getCreated(), $format);
         $data[self::FIELD_UPDATED] = $this->normalizer->normalize($product->getUpdated(), $format);
@@ -67,8 +76,8 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
      * Normalize the values of the product
      *
      * @param WriteValueCollection $values
-     * @param string                   $format
-     * @param array                    $context
+     * @param string $format
+     * @param array $context
      *
      * @return array
      */
@@ -81,53 +90,61 @@ class PropertiesNormalizer extends BasePropertiesNormalizer
         $data = [];
         /** @var ValueInterface $value */
         foreach ($values as $value) {
+
             $data[$value->getAttributeCode()][] = $this->normalizer->normalize($value, $format, $context);
 
-            //skip value if no data
+            //get attributeOptionCode by Value
             $valueData = $value->getData();
 
-            $attributeType = $this->attributeRepository->findOneBy(["code" => $value->getAttributeCode()])->getType();
+            /** @var AttributeInterface $attribute */
+            $attribute = $this->attributeRepository->findOneBy(["code" => $value->getAttributeCode()]);
 
             //translate select attribute
             if (!empty($valueData)
-              && (AttributeTypes::OPTION_MULTI_SELECT == $attributeType
-                || AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType)) {
+                && (AttributeTypes::OPTION_MULTI_SELECT == $attribute->getType()
+                    || AttributeTypes::OPTION_SIMPLE_SELECT == $attribute->getType())) {
                 $data[$value->getAttributeCode()] = [];
 
-                //get AttributeOption object from value
-                $attributeOptions = $value;
                 $attributeOptionData = [];
-                if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
-                    $attributeOptions = [$value];
-                    $attributeOptionData = '';
+                //get attribute options possible for the attribute
+                $attributeOptions = $attribute->getOptions();
+                if (!is_array($valueData)) {
+                    $valueData = [$valueData];
                 }
-
+                /** @var AttributeOptionInterface $attributeOption */
                 foreach ($attributeOptions as $attributeOption) {
-                    $attributeOptionNormalized = (array) $attributeOption;
+                    //
+                    if (in_array($attributeOption->getCode(), $valueData)) {
+                        $attributeOptionNormalized = $this->attributeOptionNormalizer->normalize(
+                            $attributeOption,
+                            'flat',
+                            $context
+                        );
+                        var_dump(get_class($value));
+                        var_dump($valueData);
+                        var_dump($attributeOptionNormalized);
+                        $locale = $context['values_locale'];
+                        if (!empty($attributeOptionNormalized['labels'][$locale])) {
+                            if (AttributeTypes::OPTION_SIMPLE_SELECT == $attribute->getType()) {
+                                $attributeOptionData = $attributeOptionNormalized['labels'][$locale];
+                            } else {
+                                $attributeOptionData[] = $attributeOptionNormalized['labels'][$locale];
+                            }
+                        } else {
+                            if (AttributeTypes::OPTION_SIMPLE_SELECT == $attribute->getType()) {
+                                $attributeOptionData = $attributeOption->getCode();
+                            } else {
+                                $attributeOptionData[] = $attributeOption->getCode();
+                            }
+                        }
+                    }
 
-                    $locale = $context['values_locale'];
-                    if (!empty($attributeOptionNormalized['labels'][$locale])) {
-                        if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
-                            $attributeOptionData = $attributeOptionNormalized['labels'][$locale];
-                        }
-                        else {
-                            $attributeOptionData[] = $attributeOptionNormalized['labels'][$locale];
-                        }
-                    }
-                    else {
-                        if (AttributeTypes::OPTION_SIMPLE_SELECT == $attributeType) {
-                            $attributeOptionData = $attributeOption->getAttributeCode();
-                        }
-                        else {
-                            $attributeOptionData[] = $attributeOption->getAttributeCode();
-                        }
-                    }
                 }
 
                 $data[$value->getAttributeCode()][] = [
-                  'locale' => null,
-                  'scope' => null,
-                  'data' => $attributeOptionData,
+                    'locale' => null,
+                    'scope' => null,
+                    'data' => $attributeOptionData,
                 ];
             }
         }

@@ -8,5 +8,6 @@ services:
       - '@pim_catalog.filter.chained'
       - '@pim_standard_format_serializer'
       - '@pimee_enrich.repository.attribute'
+      - '@pim_catalog.normalizer.standard.attribute_option'
     tags:
       - { name: pim_serializer.normalizer, priority: 40 }
