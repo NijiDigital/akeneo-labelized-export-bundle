@@ -14,7 +14,7 @@ class ProductWriter extends BaseProductWriter
 {
     protected const DEFAULT_FILE_PATH = 'filePath';
 
-    /** @var \Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher */
+    /** @var StepExecutionAwareInterface */
     protected $flusher;
 
     /**
@@ -22,7 +22,7 @@ class ProductWriter extends BaseProductWriter
      *
      * @param ArrayConverterInterface            $arrayConverter
      * @param BufferFactory                      $bufferFactory
-     * @param FlatItemBufferFlusher              $flusher
+     * @param StepExecutionAwareInterface        $flusher
      * @param AttributeRepositoryInterface       $attributeRepository
      * @param FileExporterPathGeneratorInterface $fileExporterPath
      * @param array                              $mediaAttributeTypes
@@ -31,7 +31,7 @@ class ProductWriter extends BaseProductWriter
     public function __construct(
       ArrayConverterInterface $arrayConverter,
       BufferFactory $bufferFactory,
-      FlatItemBufferFlusher $flusher,
+      StepExecutionAwareInterface $flusher,
       AttributeRepositoryInterface $attributeRepository,
       FileExporterPathGeneratorInterface $fileExporterPath,
       array $mediaAttributeTypes,
