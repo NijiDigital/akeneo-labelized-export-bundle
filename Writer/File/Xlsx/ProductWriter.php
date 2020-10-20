@@ -3,7 +3,7 @@
 namespace Niji\AkeneoLabelizedExportBundle\Writer\File\Xlsx;
 
 use Akeneo\Tool\Component\Buffer\BufferFactory;
-use Niji\AkeneoLabelizedExportBundle\Writer\File\FlatItemBufferFlusher;
+use Akeneo\Tool\Component\Batch\Step\StepExecutionAwareInterface;
 use Akeneo\Pim\Structure\Component\Repository\AttributeRepositoryInterface;
 use Akeneo\Tool\Component\Connector\ArrayConverter\ArrayConverterInterface;
 use Akeneo\Tool\Component\Connector\Writer\File\FileExporterPathGeneratorInterface;
